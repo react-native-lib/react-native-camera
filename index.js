@@ -1,12 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import {
-  DeviceEventEmitter, // android
-  NativeAppEventEmitter, // ios
-  NativeModules,
-  Platform,
-  StyleSheet,
-  requireNativeComponent,
-  View,
+    DeviceEventEmitter, // android
+    NativeAppEventEmitter, // ios
+    NativeModules,
+    Platform,
+    StyleSheet,
+    requireNativeComponent,
+    View,
 } from 'react-native';
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
@@ -93,6 +93,14 @@ export default class Camera extends Component {
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,
+    scannerWidth: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+    scannerHeight: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     mirrorImage: PropTypes.bool,
@@ -126,6 +134,8 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
+    scannerWidth:250,
+    scannerHeight:250,
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;

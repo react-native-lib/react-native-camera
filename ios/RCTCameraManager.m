@@ -234,7 +234,7 @@ RCT_CUSTOM_VIEW_PROPERTY(flashMode, NSInteger, RCTCamera) {
 - (void)setFlashMode {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-    
+
     if (![device hasFlash]) return;
     if (![device lockForConfiguration:&error]) {
         NSLog(@"%@", error);
@@ -270,6 +270,14 @@ RCT_CUSTOM_VIEW_PROPERTY(torchMode, NSInteger, RCTCamera) {
     [device setTorchMode: torchMode];
     [device unlockForConfiguration];
   });
+}
+
+
+RCT_CUSTOM_VIEW_PROPERTY(scannerWidth, NSInteger, RCTCamera) {
+  self.scannerWidth= [RCTConvert NSInteger:json];
+}
+RCT_CUSTOM_VIEW_PROPERTY(scannerHeight, NSInteger, RCTCamera) {
+  self.scannerHeight= [RCTConvert NSInteger:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(keepAwake, BOOL, RCTCamera) {
@@ -438,6 +446,15 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
       [self.session addOutput:metadataOutput];
       [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
+
+      CGFloat width = CGRectGetWidth(self.camera.frame);
+      CGFloat height = CGRectGetHeight(self.camera.frame);
+      CGFloat x = (height - self.scannerHeight)/2/height;
+      CGFloat y = (width - self.scannerWidth)/2/width;
+      CGFloat w = self.scannerWidth/height;
+      CGFloat h = self.scannerHeight/width;
+      [metadataOutput setRectOfInterest:CGRectMake(x, y, w, h)];
+
       self.metadataOutput = metadataOutput;
     }
 
