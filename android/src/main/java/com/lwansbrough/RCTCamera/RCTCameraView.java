@@ -7,9 +7,9 @@ package com.lwansbrough.RCTCamera;
 import android.content.Context;
 import android.hardware.SensorManager;
 import android.view.OrientationEventListener;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.View;
 
 import java.util.List;
 
@@ -24,8 +24,8 @@ public class RCTCameraView extends ViewGroup {
     private int _torchMode = -1;
     private int _flashMode = -1;
 
-    private int scannerWidth;
-    private int scannerHeight;
+    private double scannerWidthScale;
+    private double scannerAspect;
 
     public RCTCameraView(Context context) {
         super(context);
@@ -82,8 +82,8 @@ public class RCTCameraView extends ViewGroup {
             addView(_viewFinder);
         }
         //reset val
-        _viewFinder.setScannerWidth(scannerWidth);
-        _viewFinder.setScannerHeight(scannerHeight);
+        _viewFinder.setScannerWidthScale(scannerWidthScale);
+        _viewFinder.setScannerAspect(scannerAspect);
         _viewFinder.setCaptureMode(_captureMode);
         _viewFinder.setTorchMode(_torchMode);
         _viewFinder.setFlashMode(_flashMode);
@@ -126,17 +126,17 @@ public class RCTCameraView extends ViewGroup {
     }
 
 
-    public void setScannerWidth(int w) {
-        scannerWidth = w;
+    public void setScannerWidthScale(double v) {
+        scannerWidthScale = v;
         if (this._viewFinder != null) {
-            this._viewFinder.setScannerWidth(w);
+            this._viewFinder.setScannerWidthScale(v);
         }
     }
 
-    public void setScannerHeight(int h) {
-        scannerHeight = h;
+    public void setScannerAspect(double v) {
+        scannerAspect = v;
         if (this._viewFinder != null) {
-            this._viewFinder.setScannerHeight(h);
+            this._viewFinder.setScannerAspect(v);
         }
     }
 

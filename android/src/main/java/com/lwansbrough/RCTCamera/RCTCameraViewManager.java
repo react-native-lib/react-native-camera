@@ -65,14 +65,14 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         view.setOrientation(orientation);
     }
 
-    @ReactProp(name = "scannerWidth")
-    public void setScannerWidth(RCTCameraView view, int scannerWidth) {
-        view.setScannerWidth(scannerWidth);
+    @ReactProp(name = "scannerWidthScale")
+    public void setScannerWidthScale(RCTCameraView view, double scannerWidthScale) {
+        view.setScannerWidthScale(scannerWidthScale);
     }
 
-    @ReactProp(name = "scannerHeight")
-    public void setScannerHeight(RCTCameraView view, int scannerHeight) {
-        view.setScannerHeight(scannerHeight);
+    @ReactProp(name = "scannerAspect")
+    public void setScannerAspect(RCTCameraView view, double scannerAspect) {
+        view.setScannerAspect(scannerAspect);
     }
 
 

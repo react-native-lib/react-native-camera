@@ -93,11 +93,11 @@ export default class Camera extends Component {
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,
-    scannerWidth: PropTypes.oneOfType([
+    scannerWidthScale: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
     ]),
-    scannerHeight: PropTypes.oneOfType([
+    scannerAspect: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
     ]),
@@ -134,8 +134,8 @@ export default class Camera extends Component {
     torchMode: CameraManager.TorchMode.off,
     mirrorImage: false,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
-    scannerWidth:250,
-    scannerHeight:250,
+    scannerWidthScale:0.6,
+    scannerAspect:1,
   };
 
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;

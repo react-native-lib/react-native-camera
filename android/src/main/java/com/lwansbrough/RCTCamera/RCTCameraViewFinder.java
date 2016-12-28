@@ -29,10 +29,8 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
-    private int scannerWidth;
-    private int scannerHeight;
-    private int textureWidth;
-    private int textureHeight;
+    private double scannerWidthScale;
+    private double scannerAspect;
 
     private int _cameraType;
     private int _captureMode;
@@ -58,15 +56,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         _surfaceTexture = surface;
-        textureWidth = width;
-        textureHeight = height;
         startCamera();
     }
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        textureWidth = width;
-        textureHeight = height;
     }
 
     @Override
@@ -117,12 +111,12 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         RCTCamera.getInstance().setFlashMode(_cameraType, flashMode);
     }
 
-    public void setScannerWidth(int w) {
-        scannerWidth = w;
+    public void setScannerWidthScale(double v) {
+        scannerWidthScale = v;
     }
 
-    public void setScannerHeight(int h) {
-        scannerHeight = h;
+    public void setScannerAspect(double v) {
+        scannerAspect = v;
     }
 
     private void startPreview() {
@@ -316,12 +310,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
               imageData = rotated;
             }
 
-            double xScale = RCTCameraViewFinder.this.scannerWidth * 1.0 / textureWidth;
-            double yScale = RCTCameraViewFinder.this.scannerHeight * 1.0 / textureHeight;
-            int x = (int) (width * (1 - xScale) * 0.5);
-            int y = (int) (height * (1 - yScale) * 0.5);
-            int w = (int) (width * xScale);
-            int h = (int) (height * xScale);
+            int w = (int) (width * scannerWidthScale);
+            int h = (int) (w * scannerAspect);
+            int x = (int) ((width - w) * 0.5);
+            int y = (int) ((height - h) * 0.5);
 
             try {
                 PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, x, y, w, h, false);
