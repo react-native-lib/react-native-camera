@@ -31,6 +31,7 @@ import com.google.zxing.common.HybridBinarizer;
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
     private double scannerWidthScale;
     private double scannerAspect;
+    private double textureAspect;
 
     private int _cameraType;
     private int _captureMode;
@@ -56,11 +57,13 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         _surfaceTexture = surface;
+        textureAspect = height * 1.0 / width;
         startCamera();
     }
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        textureAspect = height * 1.0 / width;
     }
 
     @Override
@@ -311,7 +314,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
             }
 
             int w = (int) (width * scannerWidthScale);
-            int h = (int) (w * scannerAspect);
+            int h = height; //(int) (w * scannerAspect);
             int x = (int) ((width - w) * 0.5);
             int y = (int) ((height - h) * 0.5);
 

@@ -273,11 +273,11 @@ RCT_CUSTOM_VIEW_PROPERTY(torchMode, NSInteger, RCTCamera) {
 }
 
 
-RCT_CUSTOM_VIEW_PROPERTY(scannerWidth, NSInteger, RCTCamera) {
-  self.scannerWidth= [RCTConvert NSInteger:json];
+RCT_CUSTOM_VIEW_PROPERTY(scannerWidthScale, float, RCTCamera) {
+  self.scannerWidthScale = [RCTConvert CGFloat:json];
 }
-RCT_CUSTOM_VIEW_PROPERTY(scannerHeight, NSInteger, RCTCamera) {
-  self.scannerHeight= [RCTConvert NSInteger:json];
+RCT_CUSTOM_VIEW_PROPERTY(scannerAspect, float, RCTCamera) {
+  self.scannerAspect = [RCTConvert CGFloat:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(keepAwake, BOOL, RCTCamera) {
@@ -449,10 +449,11 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
       CGFloat width = CGRectGetWidth(self.camera.frame);
       CGFloat height = CGRectGetHeight(self.camera.frame);
-      CGFloat x = (height - self.scannerHeight)/2/height;
-      CGFloat y = (width - self.scannerWidth)/2/width;
-      CGFloat w = self.scannerWidth/height;
-      CGFloat h = self.scannerHeight/width;
+      CGFloat w = self.scannerWidthScale;
+      CGFloat h = (width * self.scannerAspect) / height;
+      CGFloat x = (1 - w) * 0.5;
+      CGFloat y = (1 - h) * 0.5;
+    
       [metadataOutput setRectOfInterest:CGRectMake(x, y, w, h)];
 
       self.metadataOutput = metadataOutput;
