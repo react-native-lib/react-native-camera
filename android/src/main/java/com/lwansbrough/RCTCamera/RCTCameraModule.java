@@ -5,7 +5,9 @@
 
 package com.lwansbrough.RCTCamera;
 
+import android.Manifest;
 import android.content.ContentValues;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -14,6 +16,8 @@ import android.media.*;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Surface;
@@ -755,6 +759,44 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
         List<String> flashModes = camera.getParameters().getSupportedFlashModes();
         promise.resolve(null != flashModes && !flashModes.isEmpty());
     }
+
+    @ReactMethod
+    public void checkDeviceAuthorizationStatus(final Promise promise) {
+        if (ContextCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                promise.resolve(true);
+            } else {
+                ActivityCompat.requestPermissions(getCurrentActivity(), new String[]{Manifest.permission.RECORD_AUDIO}, 101);
+                promise.resolve(false);
+            }
+        } else {
+            ActivityCompat.requestPermissions(getCurrentActivity(), new String[]{Manifest.permission.CAMERA}, 100);
+            promise.resolve(false);
+        }
+    }
+
+    @ReactMethod
+    public void checkVideoAuthorizationStatus(final Promise promise) {
+        int p = ContextCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.CAMERA);
+        if (p == PackageManager.PERMISSION_GRANTED) {
+            promise.resolve(true);
+        } else {
+            ActivityCompat.requestPermissions(getCurrentActivity(), new String[]{Manifest.permission.CAMERA}, 100);
+            promise.resolve(false);
+        }
+    }
+
+    @ReactMethod
+    public void checkAudioAuthorizationStatus(final Promise promise) {
+        int p = ContextCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.RECORD_AUDIO);
+        if (p == PackageManager.PERMISSION_GRANTED) {
+            promise.resolve(true);
+        } else {
+            ActivityCompat.requestPermissions(getCurrentActivity(), new String[]{Manifest.permission.RECORD_AUDIO}, 101);
+            promise.resolve(false);
+        }
+    }
+
 
     private Throwable writeDataToFile(byte[] data, File file) {
         try {

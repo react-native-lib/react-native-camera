@@ -117,7 +117,7 @@ export default class Camera extends Component {
     type: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
-    ])
+    ]),
   };
 
   static defaultProps = {
