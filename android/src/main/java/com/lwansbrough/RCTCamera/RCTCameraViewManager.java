@@ -65,6 +65,17 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         view.setOrientation(orientation);
     }
 
+    @ReactProp(name = "scannerWidth")
+    public void setScannerWidth(RCTCameraView view, int scannerWidth) {
+        view.setScannerWidth(scannerWidth);
+    }
+
+    @ReactProp(name = "scannerHeight")
+    public void setScannerHeight(RCTCameraView view, int scannerHeight) {
+        view.setScannerHeight(scannerHeight);
+    }
+
+
     @ReactProp(name = "captureAudio")
     public void setCaptureAudio(RCTCameraView view, boolean captureAudio) {
         // TODO - implement video mode

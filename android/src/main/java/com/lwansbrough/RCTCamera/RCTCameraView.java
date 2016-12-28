@@ -24,6 +24,9 @@ public class RCTCameraView extends ViewGroup {
     private int _torchMode = -1;
     private int _flashMode = -1;
 
+    private int scannerWidth;
+    private int scannerHeight;
+
     public RCTCameraView(Context context) {
         super(context);
         this._context = context;
@@ -78,6 +81,13 @@ public class RCTCameraView extends ViewGroup {
             }
             addView(_viewFinder);
         }
+        //reset val
+        _viewFinder.setScannerWidth(scannerWidth);
+        _viewFinder.setScannerHeight(scannerHeight);
+        _viewFinder.setCaptureMode(_captureMode);
+        _viewFinder.setTorchMode(_torchMode);
+        _viewFinder.setFlashMode(_flashMode);
+        _viewFinder.setCaptureQuality(_captureQuality);
     }
 
     public void setCaptureMode(final int captureMode) {
@@ -112,6 +122,21 @@ public class RCTCameraView extends ViewGroup {
         RCTCamera.getInstance().setOrientation(orientation);
         if (this._viewFinder != null) {
             layoutViewFinder();
+        }
+    }
+
+
+    public void setScannerWidth(int w) {
+        scannerWidth = w;
+        if (this._viewFinder != null) {
+            this._viewFinder.setScannerWidth(w);
+        }
+    }
+
+    public void setScannerHeight(int h) {
+        scannerHeight = h;
+        if (this._viewFinder != null) {
+            this._viewFinder.setScannerHeight(h);
         }
     }
 

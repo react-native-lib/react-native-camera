@@ -29,6 +29,11 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
+    private int scannerWidth;
+    private int scannerHeight;
+    private int textureWidth;
+    private int textureHeight;
+
     private int _cameraType;
     private int _captureMode;
     private SurfaceTexture _surfaceTexture;
@@ -53,11 +58,15 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         _surfaceTexture = surface;
+        textureWidth = width;
+        textureHeight = height;
         startCamera();
     }
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        textureWidth = width;
+        textureHeight = height;
     }
 
     @Override
@@ -106,6 +115,14 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
     public void setFlashMode(int flashMode) {
         RCTCamera.getInstance().setFlashMode(_cameraType, flashMode);
+    }
+
+    public void setScannerWidth(int w) {
+        scannerWidth = w;
+    }
+
+    public void setScannerHeight(int h) {
+        scannerHeight = h;
     }
 
     private void startPreview() {
@@ -299,8 +316,15 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
               imageData = rotated;
             }
 
+            double xScale = RCTCameraViewFinder.this.scannerWidth * 1.0 / textureWidth;
+            double yScale = RCTCameraViewFinder.this.scannerHeight * 1.0 / textureHeight;
+            int x = (int) (width * (1 - xScale) * 0.5);
+            int y = (int) (height * (1 - yScale) * 0.5);
+            int w = (int) (width * xScale);
+            int h = (int) (height * xScale);
+
             try {
-                PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, 0, 0, width, height, false);
+                PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(imageData, width, height, x, y, w, h, false);
                 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
                 Result result = _multiFormatReader.decodeWithState(bitmap);
 
