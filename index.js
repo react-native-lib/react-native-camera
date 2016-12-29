@@ -173,6 +173,8 @@ export default class Camera extends Component {
     if (this.state.isRecording) {
       this.stopCapture();
     }
+
+    this.destorySession();
   }
 
   componentWillReceiveProps(newProps) {
@@ -257,6 +259,12 @@ export default class Camera extends Component {
       });
     }
     return CameraManager.hasFlash();
+  }
+
+  destorySession(){
+      if(Platform.OS == "ios"){
+          CameraManager.destorySession();
+      }
   }
 }
 

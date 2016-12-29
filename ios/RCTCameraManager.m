@@ -472,6 +472,11 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   });
 }
 
+
+RCT_EXPORT_METHOD(destorySession) {
+    [self stopSession];
+}
+
 - (void)stopSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
