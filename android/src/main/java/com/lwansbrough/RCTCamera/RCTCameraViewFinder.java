@@ -7,6 +7,8 @@ package com.lwansbrough.RCTCamera;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.util.Log;
+import android.util.Size;
 import android.view.MotionEvent;
 import android.view.TextureView;
 import android.os.AsyncTask;
@@ -16,6 +18,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -31,7 +34,6 @@ import com.google.zxing.common.HybridBinarizer;
 class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
     private double scannerWidthScale;
     private double scannerAspect;
-    private double textureAspect;
 
     private int _cameraType;
     private int _captureMode;
@@ -47,6 +49,14 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     // reader instance for the barcode scanner
     private final MultiFormatReader _multiFormatReader = new MultiFormatReader();
 
+    public interface OnPreviewFinished{
+        void onFinished();
+    }
+    WeakReference<OnPreviewFinished> onPreviewFinishedWeakReference;
+    public void setOnPreviewFinished(OnPreviewFinished onPreviewFinished){
+        onPreviewFinishedWeakReference = new WeakReference<OnPreviewFinished>(onPreviewFinished);
+    }
+
     public RCTCameraViewFinder(Context context, int type) {
         super(context);
         this.setSurfaceTextureListener(this);
@@ -57,13 +67,11 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         _surfaceTexture = surface;
-        textureAspect = height * 1.0 / width;
         startCamera();
     }
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        textureAspect = height * 1.0 / width;
     }
 
     @Override
@@ -137,44 +145,53 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
     synchronized private void startCamera() {
         if (!_isStarting) {
             _isStarting = true;
-            try {
-                _camera = RCTCamera.getInstance().acquireCameraInstance(_cameraType);
-                Camera.Parameters parameters = _camera.getParameters();
-                // set autofocus
-                List<String> focusModes = parameters.getSupportedFocusModes();
-                if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-                }
-                // set picture size
-                // defaults to max available size
-                List<Camera.Size> supportedSizes;
-                if (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL) {
-                    supportedSizes = parameters.getSupportedPictureSizes();
-                } else if (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_VIDEO) {
-                    supportedSizes = RCTCamera.getInstance().getSupportedVideoSizes(_camera);
-                } else {
-                    throw new RuntimeException("Unsupported capture mode:" + _captureMode);
-                }
-                Camera.Size optimalPictureSize = RCTCamera.getInstance().getBestSize(
-                        supportedSizes,
-                        Integer.MAX_VALUE,
-                        Integer.MAX_VALUE
-                );
-                parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
+            RCTCamera.getInstance().acquireCameraInstance(_cameraType, new RCTCamera.OnCameraInited() {
+                @Override
+                public void cameraInited(Camera camera) {
+                    _camera = camera;
+                    try {
+                        Camera.Parameters parameters = _camera.getParameters();
+                        // set autofocus
+                        List<String> focusModes = parameters.getSupportedFocusModes();
+                        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+                            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                        }
+                        // set picture size
+                        // defaults to max available size
+                        List<Camera.Size> supportedSizes;
+                        if (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_STILL) {
+                            supportedSizes = parameters.getSupportedPictureSizes();
+                        } else if (_captureMode == RCTCameraModule.RCT_CAMERA_CAPTURE_MODE_VIDEO) {
+                            supportedSizes = RCTCamera.getInstance().getSupportedVideoSizes(_camera);
+                        } else {
+                            throw new RuntimeException("Unsupported capture mode:" + _captureMode);
+                        }
+                        Camera.Size optimalPictureSize = RCTCamera.getInstance().getBestSize(
+                                supportedSizes,
+                                Integer.MAX_VALUE,
+                                Integer.MAX_VALUE
+                        );
+                        Log.i("RCTCameraViewFinder", "optimalPictureSize w:" + optimalPictureSize.width + ";optimalPictureSize h:" + optimalPictureSize.height);
+                        parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
 
-                _camera.setParameters(parameters);
-                _camera.setPreviewTexture(_surfaceTexture);
-                _camera.startPreview();
-                // send previews to `onPreviewFrame`
-                _camera.setPreviewCallback(this);
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-                stopCamera();
-            } finally {
-                _isStarting = false;
-            }
+                        _camera.setParameters(parameters);
+                        _camera.setPreviewTexture(_surfaceTexture);
+                        _camera.startPreview();
+                        // send previews to `onPreviewFrame`
+                        _camera.setPreviewCallback(RCTCameraViewFinder.this);
+                        if(onPreviewFinishedWeakReference.get() != null){
+                            onPreviewFinishedWeakReference.get().onFinished();
+                        }
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        stopCamera();
+                    } finally {
+                        _isStarting = false;
+                    }
+                }
+            });
         }
     }
 
@@ -302,19 +319,20 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
 
             // rotate for zxing if orientation is portrait
             if (RCTCamera.getInstance().getActualDeviceOrientation() == 0) {
-              byte[] rotated = new byte[imageData.length];
-              for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                  rotated[x * height + height - y - 1] = imageData[x + y * width];
+                byte[] rotated = new byte[imageData.length];
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        rotated[x * height + height - y - 1] = imageData[x + y * width];
+                    }
                 }
-              }
-              width = size.height;
-              height = size.width;
-              imageData = rotated;
+                width = size.height;
+                height = size.width;
+                imageData = rotated;
             }
 
             int w = (int) (width * scannerWidthScale);
-            int h = height; //(int) (w * scannerAspect);
+//            int h = height; //(int) (w * scannerAspect);
+            int h = (int) (w * scannerAspect);
             int x = (int) ((width - w) * 0.5);
             int y = (int) ((height - h) * 0.5);
 

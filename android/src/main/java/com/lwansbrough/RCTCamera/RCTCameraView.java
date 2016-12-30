@@ -13,7 +13,7 @@ import android.view.WindowManager;
 
 import java.util.List;
 
-public class RCTCameraView extends ViewGroup {
+public class RCTCameraView extends ViewGroup implements RCTCameraViewFinder.OnPreviewFinished {
     private final OrientationEventListener _orientationListener;
     private final Context _context;
     private RCTCameraViewFinder _viewFinder = null;
@@ -80,6 +80,7 @@ public class RCTCameraView extends ViewGroup {
                 _viewFinder.setFlashMode(this._torchMode);
             }
             addView(_viewFinder);
+            _viewFinder.setOnPreviewFinished(this);
         }
         //reset val
         _viewFinder.setScannerWidthScale(scannerWidthScale);
@@ -207,5 +208,10 @@ public class RCTCameraView extends ViewGroup {
 
         this._viewFinder.layout(viewFinderPaddingX, viewFinderPaddingY, viewFinderPaddingX + viewfinderWidth, viewFinderPaddingY + viewfinderHeight);
         this.postInvalidate(this.getLeft(), this.getTop(), this.getRight(), this.getBottom());
+    }
+
+    @Override
+    public void onFinished() {
+        layoutViewFinder();
     }
 }
