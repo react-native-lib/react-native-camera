@@ -5,6 +5,9 @@ Hey there, I'm looking for active contributors to help move the development of t
 
 A camera module for React Native.
 
+#### Breaking Changes
+react-native header imports have changed in v0.40, and that means breaking changes for all! [Reference PR & Discussion](https://github.com/lwansbrough/react-native-camera/pull/544). If you are stuck on react-native <0.40, please stay fixed on v0.4.*. If you are on react-native >0.40, please point to master for now, as we work to get a v1 release out shortly.
+
 ![](https://i.imgur.com/5j2JdUk.gif)
 
 ## Getting started
@@ -14,7 +17,7 @@ A camera module for React Native.
 2. With iOS 10 and higher you need to add the "Privacy - Camera Usage Description" key to the info.plist of your project. This should be found in 'your_project/ios/your_project/Info.plist'.  Add the following code:
 ```
 <key>NSCameraUsageDescription</key>
-<string>Your message to user when the camera is accesseded for the first time</string>
+<string>Your message to user when the camera is accessed for the first time</string>
 
 <!-- Include this only if you are planning to use the camera roll -->
 <key>NSPhotoLibraryUsageDescription</key>
