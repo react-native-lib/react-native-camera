@@ -576,7 +576,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
             );
 
             final ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-            if (exifIFD0Directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+            if (exifIFD0Directory == null) {
+                return data;
+            } else if (exifIFD0Directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
                 final int exifOrientation = exifIFD0Directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
                 return rotate(data, exifOrientation);
             }
