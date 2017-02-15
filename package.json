@@ -4,7 +4,7 @@
     "type": "git",
     "url": "git@github.com:react-native-lib/react-native-camera.git"
   },
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "A Camera component for React Native. Also reads barcodes.",
   "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
   "nativePackage": true,

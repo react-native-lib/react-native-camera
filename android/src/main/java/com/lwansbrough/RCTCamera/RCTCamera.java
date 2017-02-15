@@ -83,6 +83,8 @@ public class RCTCamera {
                 adjustPreviewLayout(type);
             } catch (Exception e) {
                 Log.e("RCTCamera", "acquireCameraInstance failed", e);
+                releaseCameraInstance(type);
+                return null;
             }
         }
         Log.i("RCTCamera", "acquireCameraInstance end");
